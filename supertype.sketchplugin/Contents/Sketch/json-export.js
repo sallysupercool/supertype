@@ -86,57 +86,10 @@ var exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/css-export.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/json-export.js");
 /******/ })
 /************************************************************************/
 /******/ ({
-
-/***/ "./src/css-export.js":
-/*!***************************!*\
-  !*** ./src/css-export.js ***!
-  \***************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _util_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util/ui */ "./src/util/ui.js");
-/* harmony import */ var _util_string__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util/string */ "./src/util/string.js");
-/* harmony import */ var _util_export__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./util/export */ "./src/util/export.js");
-/* harmony import */ var _export_open_export_dialog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./export/open-export-dialog */ "./src/export/open-export-dialog.js");
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = (function (context) {
-  Object(_export_open_export_dialog__WEBPACK_IMPORTED_MODULE_3__["default"])(context, {
-    title: 'CSS classes export',
-    informativeText: 'Export each text style as a class'
-  }, function (textStyles, data) {
-    var css = {};
-    textStyles.forEach(function (textStyle) {
-      css[_util_string__WEBPACK_IMPORTED_MODULE_1__["default"].slugify(textStyle.name)] = _util_export__WEBPACK_IMPORTED_MODULE_2__["default"].createCssProps(textStyle, data);
-    });
-    var output = '';
-    var i = 0;
-
-    for (var identifier in css) {
-      if (css.hasOwnProperty(identifier)) {
-        var className = data.namingPrefix + '-' + (data.namingConvention === 'Numeric' ? i + 1 : identifier);
-        output += (i !== 0 ? "\n" : '') + '.' + className + "\n";
-        output += '{' + "\n";
-        output += _util_export__WEBPACK_IMPORTED_MODULE_2__["default"].createStyleBlock(css[identifier]);
-        output += '}' + "\n";
-        i++;
-      }
-    }
-
-    _util_ui__WEBPACK_IMPORTED_MODULE_0__["default"].createSavePanel('typex-stylesheet.css', output);
-  });
-});
-;
-
-/***/ }),
 
 /***/ "./src/export/export-components.js":
 /*!*****************************************!*\
@@ -235,6 +188,43 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/json-export.js":
+/*!****************************!*\
+  !*** ./src/json-export.js ***!
+  \****************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util/ui */ "./src/util/ui.js");
+/* harmony import */ var _util_string__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util/string */ "./src/util/string.js");
+/* harmony import */ var _util_export__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./util/export */ "./src/util/export.js");
+/* harmony import */ var _export_open_export_dialog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./export/open-export-dialog */ "./src/export/open-export-dialog.js");
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (function (context) {
+  Object(_export_open_export_dialog__WEBPACK_IMPORTED_MODULE_3__["default"])(context, {
+    title: 'JSON export',
+    informativeText: 'Export text styles in JSON format'
+  }, function (textStyles, data) {
+    // Export as JSON
+    var textStyleJson = {};
+    textStyles.forEach(function (textStyle, i) {
+      var textStyleIdentifier = _util_string__WEBPACK_IMPORTED_MODULE_1__["default"].slugify(textStyle.name);
+      var stylePropertyNaming = data.namingPrefix + '-' + (data.namingConvention === 'Numeric' ? i + 1 : textStyleIdentifier);
+      textStyleJson[stylePropertyNaming] = _util_export__WEBPACK_IMPORTED_MODULE_2__["default"].createCssProps(textStyle, data);
+    }); // Ask the user to save the file
+
+    _util_ui__WEBPACK_IMPORTED_MODULE_0__["default"].createSavePanel('typex-text-styles.json', JSON.stringify(textStyleJson));
+  });
+});
+;
+
+/***/ }),
+
 /***/ "./src/util/export.js":
 /*!****************************!*\
   !*** ./src/util/export.js ***!
@@ -252,11 +242,16 @@ __webpack_require__.r(__webpack_exports__);
 
 var exportUtils = {
   sortTextStyles: function sortTextStyles(textStyles) {
-    // Sort text styles by size
+    // Sort text styles by name
     textStyles.sort(function (a, b) {
       return a.fontSize - b.fontSize;
     });
     return textStyles;
+  },
+  // strip Sketch parts from name ADD IN ANY MORE HERE-- TODO make this a UI
+  stripSketchWords: function stripSketchWords(mixinName) {
+    mixinName = mixinName.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|-variable/g, '');
+    return mixinName;
   },
   excludeTextStyleProperties: function excludeTextStyleProperties(textStyles) {
     var excludedProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -315,10 +310,11 @@ var exportUtils = {
 
     if (textStyle.textTransform === 2) {
       cssProps['text-transform'] = 'lowercase';
-    }
+    } // modified this line height calculator as it was outputting wrong sizes
+
 
     if (textStyle.lineHeight) {
-      cssProps['line-height'] = _number__WEBPACK_IMPORTED_MODULE_1__["default"].parseFloatMaxDecimal(1 + (textStyle.lineHeight - textStyle.fontSize) / textStyle.lineHeight, opts.maxDecimalPlaces);
+      cssProps['line-height'] = _number__WEBPACK_IMPORTED_MODULE_1__["default"].parseFloatMaxDecimal(textStyle.lineHeight / textStyle.fontSize, opts.maxDecimalPlaces);
     }
 
     if (textStyle.color) {
@@ -679,8 +675,14 @@ var util = {
 
     textStyleId += textStyle.fontFamily;
     textStyleId += '-' + textStyle.fontSize;
-    textStyleId += '-' + textStyle.letterSpacing;
-    textStyleId += '-' + textStyle.textTransform;
+
+    if (textStyle.letterSpacing) {
+      textStyleId += '-' + textStyle.letterSpacing;
+    }
+
+    if (textStyle.textTransform) {
+      textStyleId += '-' + textStyle.textTransform;
+    }
 
     if (textStyle.lineHeight) {
       textStyleId += '-' + textStyle.lineHeight;
@@ -706,4 +708,4 @@ var util = {
 }
 that['onRun'] = __skpm_run.bind(this, 'default')
 
-//# sourceMappingURL=css-export.js.map
+//# sourceMappingURL=json-export.js.map

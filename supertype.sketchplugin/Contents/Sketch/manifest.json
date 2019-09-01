@@ -29,7 +29,7 @@
     }
   ],
   "menu": {
-    "title": "Typex (Text style export)",
+    "title": "Supertype",
     "items": [
       {
         "title": "Export",
@@ -42,10 +42,10 @@
       }
     ]
   },
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Text styles to CSS, SASS mixins, HTML, JSON, ...",
-  "name": "typex",
-  "identifier": "typex",
+  "name": "supertype",
+  "identifier": "supertype",
   "disableCocoaScriptPreprocessor": true,
-  "appcast": "https://raw.githubusercontent.com/reinvanoyen/typex/master/.appcast.xml"
+  "appcast": "https://raw.githubusercontent.com/sallysupercool/supertype/master/.appcast.xml"
 }
