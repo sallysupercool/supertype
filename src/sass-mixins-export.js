@@ -34,6 +34,6 @@ export default function(context) {
       }
     }
 
-    ui.createSavePanel('typex-mixins.scss', output);
+    ui.createSavePanel('_supertype-mixins.scss', output);
   });
 };
