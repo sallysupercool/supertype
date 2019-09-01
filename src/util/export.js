@@ -6,13 +6,19 @@ import numberUtils from './number';
 const exportUtils = {
   sortTextStyles(textStyles) {
 
-    // Sort text styles by size
+    // Sort text styles by name
     textStyles.sort((a, b) => {
       return a.fontSize - b.fontSize;
     });
 
     return textStyles;
   },
+   // strip Sketch parts from name ADD IN ANY MORE HERE-- TODO make this a UI
+  stripSketchWords(mixinName) {
+        mixinName = mixinName.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|-variable/g, '');
+        return mixinName;
+                
+      },
   excludeTextStyleProperties(textStyles, excludedProps = []) {
 
     textStyles.forEach(textStyle => {
@@ -80,9 +86,9 @@ const exportUtils = {
     if (textStyle.textTransform === 2) {
       cssProps['text-transform'] = 'lowercase';
     }
-
+// modified this line height calculator as it was outputting wrong sizes
     if (textStyle.lineHeight) {
-      cssProps['line-height'] = numberUtils.parseFloatMaxDecimal(1 + (textStyle.lineHeight - textStyle.fontSize) / textStyle.lineHeight, opts.maxDecimalPlaces);
+      cssProps['line-height'] = numberUtils.parseFloatMaxDecimal(textStyle.lineHeight / textStyle.fontSize, opts.maxDecimalPlaces);
     }
 
     if (textStyle.color) {

@@ -9,8 +9,13 @@ const util = {
 
     textStyleId += textStyle.fontFamily;
     textStyleId += '-'+textStyle.fontSize;
-    textStyleId += '-'+textStyle.letterSpacing;
-    textStyleId += '-'+textStyle.textTransform;
+    if (textStyle.letterSpacing) {
+      textStyleId += '-'+textStyle.letterSpacing;
+    }
+
+    if (textStyle.textTransform) {
+      textStyleId += '-'+textStyle.textTransform;
+    }
 
     if (textStyle.lineHeight) {
       textStyleId += '-'+textStyle.lineHeight;
