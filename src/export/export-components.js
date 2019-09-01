@@ -43,15 +43,15 @@ export default [
   {
     type: 'text',
     id: 'namingPrefix',
-    value: 'type',
+    value: 'text-',
     label: 'Naming prefix'
   },
   {
     type: 'select',
     id: 'namingConvention',
     options: [
-      'Numeric',
-      'Text style name'
+      'Text style name',
+      'Numeric'
     ],
     label: 'Naming convention'
   }

@@ -123,7 +123,7 @@ const exportUtils = {
 
     return styleString;
   },
-  createHtmlFontbook(textStyles, opts = {}) {
+  createPatternlab(textStyles, opts = {}) {
 
     let output = `
       <!DOCTYPE html>

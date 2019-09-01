@@ -4,10 +4,10 @@
   "icon": "icon.png",
   "commands": [
     {
-      "name": "HTML fontbook",
+      "name": "Pattern Lab",
       "shortcut": "ctrl shift f",
-      "identifier": "html-fontbook-export",
-      "script": "./html-fontbook-export.js"
+      "identifier": "patternlab-export",
+      "script": "./patternlab-export.js"
     },
     {
       "name": "JSON",
@@ -34,7 +34,7 @@
       {
         "title": "Export",
         "items": [
-          "html-fontbook-export",
+          "patternlab-export",
           "json-export",
           "css-export",
           "sass-mixins-export"
