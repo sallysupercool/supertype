@@ -20,6 +20,17 @@ const string = {
     ;
 
     return str;
+  },
+   // strip Sketch parts from name ADD IN ANY MORE HERE-- TODO make this a UI
+  stripSketchWords(mixinName) {
+        mixinName = mixinName.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|brand-1|brand-2|brand-3|brand-4|brand-5|-variable/g, '');
+        return mixinName;
+                
+  },
+  // clean off media names, not for sass mixins export, only for other options!
+  stripMedias(mixinName) {
+    mixinName = mixinName.replace(/-desktop|-mobile|-tablet/g, '');
+    return mixinName;
   }
 };
 

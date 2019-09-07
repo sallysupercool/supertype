@@ -2,23 +2,18 @@
 
 import util from './util';
 import numberUtils from './number';
+import stringUtils from './string';
 
 const exportUtils = {
   sortTextStyles(textStyles) {
 
     // Sort text styles by name
     textStyles.sort((a, b) => {
-      return a.fontSize - b.fontSize;
+      return a.name - b.name;
     });
 
     return textStyles;
-  },
-   // strip Sketch parts from name ADD IN ANY MORE HERE-- TODO make this a UI
-  stripSketchWords(mixinName) {
-        mixinName = mixinName.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|-variable/g, '');
-        return mixinName;
-                
-      },
+  }, 
   excludeTextStyleProperties(textStyles, excludedProps = []) {
 
     textStyles.forEach(textStyle => {
@@ -48,11 +43,12 @@ const exportUtils = {
 
     return filtered;
   },
+  //start creating things!
   createCssProps(textStyle, opts = {}) {
 
     opts.cssUnit = opts.cssUnit || 0;
     opts.scalingFactor = opts.scalingFactor || 1;
-    opts.maxDecimalPlaces = opts.maxDecimalPlaces || 2;
+    opts.maxDecimalPlaces = opts.maxDecimalPlaces || 6;
 
     let cssProps = {};
 
@@ -113,72 +109,86 @@ const exportUtils = {
 
     return output;
   },
-  createInlineStyleString(cssProps) {
-
-    let styleString = '';
-
-    for (let prop in cssProps) {
-      styleString += prop + ': ' + cssProps[prop] +'; ';
-    }
-
-    return styleString;
+  createClasses(finalTextStyleName) {
+    return `.h-${finalTextStyleName} { @include ${finalTextStyleName} }`
+    
   },
-  createPatternlab(textStyles, opts = {}) {
+  createCombinedStyles(textStyles) {
+    let output = ` `;
+    //combine all the initial mixins into something useful with media queries. As indicated please only provide final and deduped text style names as input 
+    function createMegaMixin(finalTextStyleName) {
+    // swap in the screen size as second to last name
+    let i = finalTextStyleName.lastIndexOf('-');
+    function insert(str, index, value) {
+        return str.substr(0, index) + value + str.substr(index);
+    }
+    let phone = insert(finalTextStyleName, i, '-mobile');
+    let tablet = insert(finalTextStyleName, i, '-tablet');
+    let desktop = insert(finalTextStyleName, i, '-desktop');
+
+    return `@mixin ${finalTextStyleName} { 
+    @include media($tablet) { @include ${tablet} }
+    @include media($tablet--gt) { @include ${desktop} }
+    @include media($phone) { @include ${phone} }   
+    } `
+    
+    };
+    //get cleaned list of styles
+    finalList = util.createFinalStylesList(textStyles);
+
+    finalList.forEach((finalTextStyleName) => {
+
+      output += `${createMegaMixin(finalTextStyleName)}`;
+
+    });
+    return output;
+  },
+  createCombinedClassNames(textStyles, opt = {}) {
+    let output = ` `;
+    //get cleaned list of styles
+    finalList = util.createFinalStylesList(textStyles);
+
+    finalList.forEach((finalTextStyleName) => {
+
+      output += `${createMegaMixin(finalTextStyleName)}`;
+
+    });
+
+    return output;
+
+  },
+  createPatternlab(textStyle, opts = {}) {
 
     let output = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <title>Typex text styles</title>
-      </head>
-      <body style="padding: 0; margin: 0;">
+      <article class="o-grid o-container">
+      <h3 class="h-text---styleguide-styleguide-title">Automated Export, style only</h3>
     `;
 
-    textStyles.forEach((textStyle, i) => {
+    textStyles = createFinalStylesList(textStyle);
 
-      let cssProps = exportUtils.createCssProps(textStyle, opts);
-      let inlineStyleString = exportUtils.createInlineStyleString(cssProps);
-      let cssPropsBlock = exportUtils.createStyleBlock(cssProps);
-
-      let textStyleName;
-
-      if (opts.namingConvention === 'Numeric') {
-
-        textStyleName = opts.namingPrefix + ' ' + (i+1);
-
-      } else if (opts.namingConvention === 'Text style name') {
-
-        textStyleName = opts.namingPrefix + ' ' + textStyle.name;
-
-      } else {
-
-        textStyleName = opts.namingPrefix + ' ' + (i+1) + ' ('+textStyle.name+')';
-      }
+    textStyles.forEach((textStyle) => {
 
       output += `
-        <div style="box-shadow: 0 5px 15px #f0f0f0; padding: 25px 50px; border-bottom: 1px solid #ccc;">
-          <div style="font-family: Helvetica, Arial, Sans-Serif; font-size: 14px; margin-bottom: 15px;">
+        <dt class="h-text---styleguide-styleguide-title">
             <span>${i+1}.</span>
             <span>
-              ${textStyleName}
+              ${textStyle}
             </span>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <div style="${inlineStyleString};">
+          </dt>
+          <dd>
+            <div class="h-${textStyle}" contenteditable="true">
               The quick brown fox jumps over the lazy dog
             </div>
-            <div>
-                <textarea cols="35" rows="8" style="border: 1px solid #ccc; resize: none;">${cssPropsBlock}</textarea>
-            </div>
-          </div>
-        </div>
+            
+          </dd>
       `;
     });
 
     output += `
-      </body>
-      </html>
+    </dl>
+    </article>
+
+
     `;
 
     return output;

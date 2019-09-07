@@ -10,22 +10,16 @@
       "script": "./patternlab-export.js"
     },
     {
-      "name": "JSON",
-      "shortcut": "ctrl shift j",
-      "identifier": "json-export",
-      "script": "./json-export.js"
-    },
-    {
-      "name": "CSS classes",
+      "name": "CSS Helpers",
       "shortcut": "ctrl shift c",
-      "identifier": "css-export",
-      "script": "./css-export.js"
+      "identifier": "helpers-export",
+      "script": "./helpers-export.js"
     },
     {
       "name": "SASS mixins",
       "shortcut": "ctrl shift s",
-      "identifier": "sass-mixins-export",
-      "script": "./sass-mixins-export.js"
+      "identifier": "mixins-export",
+      "script": "./mixins-export.js"
     }
   ],
   "menu": {
@@ -35,9 +29,8 @@
         "title": "Export",
         "items": [
           "patternlab-export",
-          "json-export",
-          "css-export",
-          "sass-mixins-export"
+          "mixins-export",
+          "helpers-export"
         ]
       }
     ]

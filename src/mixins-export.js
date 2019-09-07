@@ -25,6 +25,7 @@ export default function(context) {
       if (sass.hasOwnProperty(identifier)) {
 
         let mixinName = data.namingPrefix + '-' + (data.namingConvention === 'Numeric' ? i+1 : identifier);
+        mixinName = exportUtils.stripSketchWords(mixinName);
 
         output += ( i !== 0 ? "\n" : '' ) + '@mixin ' + mixinName + "\n";
         output += '{'+"\n";
