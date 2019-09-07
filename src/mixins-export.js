@@ -1,40 +1,39 @@
 import ui from './util/ui';
-import stringUtils from './util/string';
+import list from './util/list';
+import sketch from './util/sketch';
 import exportUtils from './util/export';
-
 import openExportDialog from './export/open-export-dialog';
 
 export default function(context) {
 
-  openExportDialog(context, {
+  openExportDialog(context, data {
     title: 'SASS mixins export',
     informativeText: 'Export each text style as a SASS mixin'
   }, (textStyles, data) => {
 
-    let sass = {};
+    textStyles = sketch.getTextStyles(textStyles, data);
+    let stylesheet = '';
 
+    // stuff these in the stylesheet
     textStyles.forEach(textStyle => {
-      sass[stringUtils.slugify(textStyle.name)] = exportUtils.createCssProps(textStyle, data);
+      textStyle = exportUtils.createCssProps(textStyle);
+      
+
+        stylesheet += '@mixin ' + textStyle.name + "\n";
+        stylesheet += '{'+"\n";
+        stylesheet += exportUtils.createStyleBlock(textStyle);
+        stylesheet += '}'+"\n";
+  
     });
 
-    let output = '';
-    let i = 0;
+    stylesheet += '// now create combination mixins with media queries \n';
 
-    for (let identifier in sass) {
+    let finalStylesList = list.createFinalStylesList(textStyles);
 
-      if (sass.hasOwnProperty(identifier)) {
+    finalStylesList.forEach(textStyle => {
+       stylesheet += exportUtils.createMegaMixin(textStyle);
+    });
 
-        let mixinName = data.namingPrefix + '-' + (data.namingConvention === 'Numeric' ? i+1 : identifier);
-        mixinName = exportUtils.stripSketchWords(mixinName);
-
-        output += ( i !== 0 ? "\n" : '' ) + '@mixin ' + mixinName + "\n";
-        output += '{'+"\n";
-        output += exportUtils.createStyleBlock(sass[identifier]);
-        output += '}'+"\n";
-        i++;
-      }
-    }
-
-    ui.createSavePanel('_supertype-mixins.scss', output);
+    ui.createSavePanel('_supertype-mixins.scss', stylesheet);
   });
 };

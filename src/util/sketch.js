@@ -1,4 +1,7 @@
 "use strict";
+import string from './string';
+//here we grab all the properties from sketch and change the name, retaining media tags for now
+// this is called by ./export/open-export-dialog
 
 const sketch = {
   getTextStyles(context) {
@@ -21,35 +24,20 @@ const sketch = {
 
       let textStyle = {};
 
-      textStyle.name = rawTextStyle.name;
+      textStyle.name = string.slugify(rawTextStyle.name);
+      textStyle.name = string.stripSketchWords(textStyle.name);
+
       textStyle.fontFamily = String(rawTextStyle.attributes.NSFont.fontDescriptor().objectForKey(NSFontNameAttribute));
       textStyle.fontSize = rawTextStyle.attributes.NSFont.fontDescriptor().objectForKey(NSFontSizeAttribute);
       textStyle.paragraph = rawTextStyle.attributes.NSParagraphStyle;
 
       if (textStyle.paragraph) {
         textStyle.lineHeight = textStyle.paragraph.maximumLineHeight();
+        textStyle.marginBottom = textStyle.paragraph.paragraphSpacing;
       }
 
-      let color = rawTextStyle.attributes.MSAttributedStringColorAttribute;
-
-      if (color) {
-        let r = color.red();
-        let g = color.green();
-        let b = color.blue();
-        let a = color.alpha();
-
-        textStyle.color = {
-          r: r,
-          g: g,
-          b: b,
-          a: a
-        };
-      }
-
-      textStyle.letterSpacing = rawTextStyle.attributes.NSKern || 0;
+      // textStyle.letterSpacing = rawTextStyle.attributes.NSKern || 0;
       textStyle.textTransform = parseInt(rawTextStyle.attributes.MSAttributedStringTextTransformAttribute || 0);
-
-      // @TODO strikethrough & underline, or is this not needed?
 
       textStyles.push(textStyle);
     });

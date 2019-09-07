@@ -1,24 +1,49 @@
 import ui from './util/ui';
-import stringUtils from './util/string';
-import sassUtils from './util/util';
+import list from './util/list';
 import exportUtils from './util/export';
 import openExportDialog from "./export/open-export-dialog";
 
 export default function(context) {
 
-  openExportDialog(context, {
-    title: 'Create Patternlab samples',
-    informativeText: 'Create a type page for Patternlab',
-    confirmBtnText: 'Export HBS'
-  }, (textStyles, data) => {
+    openExportDialog(context, {
+        title: 'Create Patternlab samples',
+        informativeText: 'Create a type page for Patternlab',
+        confirmBtnText: 'Export HBS'
+    }, (textStyles, data) => {
 
-    let stylesList = [stringUtils.slugify(textStyle.name)];
-    stylesList = sassUtils.createFinalStylesList(stylesList);
+        let finalStylesList = list.createFinalStylesList(textStyles);
+        let i = 0;
 
-    // Create a HTML fontbook with these styles
-    let hbs = utils.exportUtils.createPatternlab(stylesList);
+        let hbs = `
+      <article class="o-grid o-container">
+      <h3 class="h-text---styleguide-styleguide-title">Automated Export, style only, not an html guide</h3>
+    `;
 
-    // Ask the user to save the file
-    ui.createSavePanel('supertype.hbs', hbs);
-  });
-};
+        finalStylesList.forEach((textStyle) => {
+
+            hbs += `
+        <dt class="h-text---styleguide-styleguide-title">
+            <span>${i+1}.</span>
+            <span>
+              ${textStyle}
+            </span>
+          </dt>
+          <dd>
+            <div class="h-${textStyle}" contenteditable="true">
+              The quick brown fox jumps over the lazy dog
+            </div>
+            
+          </dd>
+      `;
+
+        });
+        hbs += `
+    </dl>
+    </article>
+
+    `;
+
+        // Ask the user to save the file
+        ui.createSavePanel('supertype.hbs', hbs);
+    });
+}

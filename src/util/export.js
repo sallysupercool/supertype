@@ -1,60 +1,24 @@
 "use strict";
 
-import util from './util';
-import numberUtils from './number';
-import stringUtils from './string';
+import list from './list';
+import number from './number';
+import string from './string';
 
 const exportUtils = {
-  sortTextStyles(textStyles) {
-
-    // Sort text styles by name
-    textStyles.sort((a, b) => {
-      return a.name - b.name;
-    });
-
-    return textStyles;
-  }, 
-  excludeTextStyleProperties(textStyles, excludedProps = []) {
-
-    textStyles.forEach(textStyle => {
-      excludedProps.forEach(prop => {
-        if (textStyle[prop]) {
-          delete textStyle[prop];
-        }
-      });
-    });
-
-    return textStyles;
-  },
-  removeDoubleTextStyles(textStyles) {
-
-    let uniqueTextStyles = {};
-    let filtered = [];
-
-    textStyles.forEach((textStyle, i) => {
-
-      let id = util.createTextStyleId(textStyle);
-
-      if (! uniqueTextStyles[id]) {
-        uniqueTextStyles[id] = true;
-        filtered.push(textStyle);
-      }
-    });
-
-    return filtered;
-  },
+  
   //start creating things!
+  // this creates the initial css mixins from the Sketch properties
   createCssProps(textStyle, opts = {}) {
 
-    opts.cssUnit = opts.cssUnit || 0;
-    opts.scalingFactor = opts.scalingFactor || 1;
-    opts.maxDecimalPlaces = opts.maxDecimalPlaces || 6;
+    opts.cssUnit = 'px';
+    opts.maxDecimalPlaces = 6;
 
     let cssProps = {};
 
     cssProps['font-family'] = textStyle.fontFamily;
     cssProps['font-weight'] = 400;
     cssProps['text-transform'] = 'none';
+    cssProps['margin-bottom'] = '$b';
 
     let fontParts = textStyle.fontFamily.split('-');
 
@@ -72,8 +36,7 @@ const exportUtils = {
       cssProps['font-weight'] = fontWeightMap[fontParts[1]];
     }
 
-    cssProps['font-size'] = numberUtils.parseFloatMaxDecimal(opts.scalingFactor * textStyle.fontSize, opts.maxDecimalPlaces)+opts.cssUnit;
-    cssProps['letter-spacing'] = numberUtils.parseFloatMaxDecimal(opts.scalingFactor * textStyle.letterSpacing, opts.maxDecimalPlaces)+opts.cssUnit;
+    cssProps['font-size'] = number.parseFloatMaxDecimal(1 * textStyle.fontSize, 0)+opts.cssUnit;
 
     if (textStyle.textTransform === 1) {
       cssProps['text-transform'] = 'uppercase';
@@ -84,20 +47,14 @@ const exportUtils = {
     }
 // modified this line height calculator as it was outputting wrong sizes
     if (textStyle.lineHeight) {
-      cssProps['line-height'] = numberUtils.parseFloatMaxDecimal(textStyle.lineHeight / textStyle.fontSize, opts.maxDecimalPlaces);
+      cssProps['line-height'] = number.parseFloatMaxDecimal(textStyle.lineHeight / textStyle.fontSize, opts.maxDecimalPlaces);
     }
-
-    if (textStyle.color) {
-      cssProps['color'] = exportUtils.createRgbaString(textStyle.color);
+// huh, maybe we should grab margin bottoms?
+    if (textStyle.marginBottom) {
+      cssProps['margin-bottom'] = number.parseFloatMaxDecimal(1 * textStyle.fontSize, 0)+opts.cssUnit;
     }
 
     return cssProps;
-  },
-  createRgbaString(colorObj) {
-    return 'rgba('+exportUtils.createColorValue(colorObj.r)+', '+exportUtils.createColorValue(colorObj.g)+', '+exportUtils.createColorValue(colorObj.b)+', '+colorObj.a+')';
-  },
-  createColorValue(normalizedValue) {
-    return Math.round(normalizedValue * 255);
   },
   createStyleBlock(cssProps) {
 
@@ -109,89 +66,26 @@ const exportUtils = {
 
     return output;
   },
-  createClasses(finalTextStyleName) {
-    return `.h-${finalTextStyleName} { @include ${finalTextStyleName} }`
+  createHelperClass(textStyle) {
+    textStyle.name = string.stripMedias(textStyle.name);
+    return `.h-${textStyle.name} { @include ${textStyle.name} }`
     
   },
-  createCombinedStyles(textStyles) {
-    let output = ` `;
-    //combine all the initial mixins into something useful with media queries. As indicated please only provide final and deduped text style names as input 
-    function createMegaMixin(finalTextStyleName) {
+  createMegaMixin(textStyle) {
     // swap in the screen size as second to last name
-    let i = finalTextStyleName.lastIndexOf('-');
+    let i = textStyle.lastIndexOf('-');
     function insert(str, index, value) {
         return str.substr(0, index) + value + str.substr(index);
     }
-    let phone = insert(finalTextStyleName, i, '-mobile');
-    let tablet = insert(finalTextStyleName, i, '-tablet');
-    let desktop = insert(finalTextStyleName, i, '-desktop');
+    let phone = insert(textStyle, i, '-mobile');
+    let tablet = insert(textStyle, i, '-tablet');
+    let desktop = insert(textStyle, i, '-desktop');
 
-    return `@mixin ${finalTextStyleName} { 
+    return `@mixin ${textStyle} { 
     @include media($tablet) { @include ${tablet} }
     @include media($tablet--gt) { @include ${desktop} }
     @include media($phone) { @include ${phone} }   
-    } `
-    
-    };
-    //get cleaned list of styles
-    finalList = util.createFinalStylesList(textStyles);
-
-    finalList.forEach((finalTextStyleName) => {
-
-      output += `${createMegaMixin(finalTextStyleName)}`;
-
-    });
-    return output;
-  },
-  createCombinedClassNames(textStyles, opt = {}) {
-    let output = ` `;
-    //get cleaned list of styles
-    finalList = util.createFinalStylesList(textStyles);
-
-    finalList.forEach((finalTextStyleName) => {
-
-      output += `${createMegaMixin(finalTextStyleName)}`;
-
-    });
-
-    return output;
-
-  },
-  createPatternlab(textStyle, opts = {}) {
-
-    let output = `
-      <article class="o-grid o-container">
-      <h3 class="h-text---styleguide-styleguide-title">Automated Export, style only</h3>
-    `;
-
-    textStyles = createFinalStylesList(textStyle);
-
-    textStyles.forEach((textStyle) => {
-
-      output += `
-        <dt class="h-text---styleguide-styleguide-title">
-            <span>${i+1}.</span>
-            <span>
-              ${textStyle}
-            </span>
-          </dt>
-          <dd>
-            <div class="h-${textStyle}" contenteditable="true">
-              The quick brown fox jumps over the lazy dog
-            </div>
-            
-          </dd>
-      `;
-    });
-
-    output += `
-    </dl>
-    </article>
-
-
-    `;
-
-    return output;
+    } `   
   }
 };
 
