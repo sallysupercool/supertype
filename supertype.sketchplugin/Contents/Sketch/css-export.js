@@ -148,39 +148,47 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ([{
-  type: 'checkbox',
-  id: 'merge',
-  label: 'Merge',
-  value: 'Merge identical styles'
-}, {
   type: 'multicheckbox',
   id: 'excludeProps',
   label: 'Exclude properties',
-  values: ['Color', 'Line height']
-}, {
-  type: 'select',
-  id: 'cssUnit',
-  options: ['px', 'em', 'rem', '%', 'vh', 'vw', 'No unit'],
-  label: 'CSS unit'
-}, {
-  type: 'text',
-  id: 'scalingFactor',
-  value: 1,
-  label: 'Size scaling factor'
-}, {
+  values: ['Color', 'Letter spacing', 'Text transform']
+}, // {
+//   type: 'select', //removed as we do this in PostCSS
+//   id: 'cssUnit',
+//   options: [
+//     'px',
+//     'em',
+//     'rem',
+//     '%',
+//     'vh',
+//     'vw',
+//     'No unit'
+//   ],
+//   label: 'CSS unit'
+// },
+// {
+//   type: 'text', //removed as this is not rel for us
+//   id: 'scalingFactor',
+//   value: 1,
+//   label: 'Size scaling factor'
+// },
+{
   type: 'text',
   id: 'maxDecimalPlaces',
-  value: 2,
+  value: 6,
+  // increased to 6 for accuracy
   label: 'Maximal decimal places'
 }, {
   type: 'text',
   id: 'namingPrefix',
-  value: 'type',
+  value: 'text-',
+  // changed to our prefix
   label: 'Naming prefix'
 }, {
   type: 'select',
   id: 'namingConvention',
-  options: ['Numeric', 'Text style name'],
+  options: ['Text style name', // prefer our convention
+  'Numeric'],
   label: 'Naming convention'
 }]);
 
@@ -248,13 +256,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _number__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./number */ "./src/util/number.js");
 
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 
 
 var exportUtils = {
   sortTextStyles: function sortTextStyles(textStyles) {
     // Sort text styles by name
     textStyles.sort(function (a, b) {
-      return a.fontSize - b.fontSize;
+      return a.name - b.name;
     });
     return textStyles;
   },
@@ -262,6 +278,17 @@ var exportUtils = {
   stripSketchWords: function stripSketchWords(mixinName) {
     mixinName = mixinName.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|-variable/g, '');
     return mixinName;
+  },
+  // clean off media names, not for sass mixins export, only for other options!
+  stripMedias: function stripMedias(mixinName) {
+    mixinName = mixinName.replace(/-desktop|-mobile|-tablet/g, '');
+    return mixinName;
+  },
+  // deduper for cleaned names only
+  deDupe: function deDupe(cleanedNames) {
+    var unique = _toConsumableArray(new Set(cleanedNames));
+
+    return unique;
   },
   excludeTextStyleProperties: function excludeTextStyleProperties(textStyles) {
     var excludedProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -286,6 +313,22 @@ var exportUtils = {
       }
     });
     return filtered;
+  },
+  //start creating things!
+  // make a list of final text styles to drive creation of classes and mega mixins
+  createFinalStylesList: function createFinalStylesList(textStyles) {
+    //clean random names
+    var cleanedNames = []; // get the name out of the text style and run through any cleaning here -- have written it all out so it's easier to add to later
+
+    textStyles.forEach(function (textStyle, i) {
+      var cleanedName = textStyle.name;
+      cleanedName = stripSketchWords(textStyle.name);
+      cleanedName = stripMedias(textStyle.name);
+      cleanedNames = cleanedNames + cleanedName;
+    });
+    cleanedNames = deDupe(cleanedNames);
+    log(cleanedNames);
+    return cleanedNames;
   },
   createCssProps: function createCssProps(textStyle) {
     var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -348,35 +391,52 @@ var exportUtils = {
 
     return output;
   },
-  createInlineStyleString: function createInlineStyleString(cssProps) {
-    var styleString = '';
-
-    for (var prop in cssProps) {
-      styleString += prop + ': ' + cssProps[prop] + '; ';
-    }
-
-    return styleString;
+  createClasses: function createClasses(finalTextStyleName) {
+    return ".h-".concat(finalTextStyleName, " { @include ").concat(finalTextStyleName, " }");
   },
-  createHtmlFontbook: function createHtmlFontbook(textStyles) {
-    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var output = "\n      <!DOCTYPE html>\n      <html lang=\"en\">\n      <head>\n        <meta charset=\"utf-8\">\n        <title>Typex text styles</title>\n      </head>\n      <body style=\"padding: 0; margin: 0;\">\n    ";
-    textStyles.forEach(function (textStyle, i) {
-      var cssProps = exportUtils.createCssProps(textStyle, opts);
-      var inlineStyleString = exportUtils.createInlineStyleString(cssProps);
-      var cssPropsBlock = exportUtils.createStyleBlock(cssProps);
-      var textStyleName;
+  createCombinedStyles: function createCombinedStyles(textStyles) {
+    var output = " "; //combine all the initial mixins into something useful with media queries. As indicated please only provide final and deduped text style names as input 
 
-      if (opts.namingConvention === 'Numeric') {
-        textStyleName = opts.namingPrefix + ' ' + (i + 1);
-      } else if (opts.namingConvention === 'Text style name') {
-        textStyleName = opts.namingPrefix + ' ' + textStyle.name;
-      } else {
-        textStyleName = opts.namingPrefix + ' ' + (i + 1) + ' (' + textStyle.name + ')';
+    function createMegaMixin(finalTextStyleName) {
+      // swap in the screen size as second to last name
+      var i = finalTextStyleName.lastIndexOf('-');
+
+      function insert(str, index, value) {
+        return str.substr(0, index) + value + str.substr(index);
       }
 
-      output += "\n        <div style=\"box-shadow: 0 5px 15px #f0f0f0; padding: 25px 50px; border-bottom: 1px solid #ccc;\">\n          <div style=\"font-family: Helvetica, Arial, Sans-Serif; font-size: 14px; margin-bottom: 15px;\">\n            <span>".concat(i + 1, ".</span>\n            <span>\n              ").concat(textStyleName, "\n            </span>\n          </div>\n          <div style=\"display: flex; justify-content: space-between;\">\n            <div style=\"").concat(inlineStyleString, ";\">\n              The quick brown fox jumps over the lazy dog\n            </div>\n            <div>\n                <textarea cols=\"35\" rows=\"8\" style=\"border: 1px solid #ccc; resize: none;\">").concat(cssPropsBlock, "</textarea>\n            </div>\n          </div>\n        </div>\n      ");
+      var phone = insert(finalTextStyleName, i, '-mobile');
+      var tablet = insert(finalTextStyleName, i, '-tablet');
+      var desktop = insert(finalTextStyleName, i, '-desktop');
+      return "@mixin ".concat(finalTextStyleName, " { \n    @include media($tablet) { @include ").concat(tablet, " }\n    @include media($tablet--gt) { @include ").concat(desktop, " }\n    @include media($phone) { @include ").concat(phone, " }   \n    } ");
+    }
+
+    ; //get cleaned list of styles
+
+    finalList = _util__WEBPACK_IMPORTED_MODULE_0__["default"].createFinalStylesList(textStyles);
+    finalList.forEach(function (finalTextStyleName) {
+      output += "".concat(createMegaMixin(finalTextStyleName));
     });
-    output += "\n      </body>\n      </html>\n    ";
+    return output;
+  },
+  createCombinedClassNames: function createCombinedClassNames(textStyles) {
+    var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var output = " "; //get cleaned list of styles
+
+    finalList = _util__WEBPACK_IMPORTED_MODULE_0__["default"].createFinalStylesList(textStyles);
+    finalList.forEach(function (finalTextStyleName) {
+      output += "".concat(createMegaMixin(finalTextStyleName));
+    });
+    return output;
+  },
+  createPatternlab: function createPatternlab(textStyle) {
+    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var output = "\n      <article class=\"o-grid o-container\">\n      <h3 class=\"h-text---styleguide-styleguide-title\">Automated Export, style only</h3>\n    ";
+    textStyles = createFinalStylesList(textStyle);
+    textStyles.forEach(function (textStyle) {
+      output += "\n        <dt class=\"h-text---styleguide-styleguide-title\">\n            <span>".concat(i + 1, ".</span>\n            <span>\n              ").concat(textStyle, "\n            </span>\n          </dt>\n          <dd>\n            <div class=\"h-").concat(textStyle, "\" contenteditable=\"true\">\n              The quick brown fox jumps over the lazy dog\n            </div>\n            \n          </dd>\n      ");
+    });
+    output += "\n    </dl>\n    </article>\n\n\n    ";
     return output;
   }
 };
@@ -480,7 +540,8 @@ var string = {
   slugify: function slugify(str) {
     str = str.replace(/^\s+|\s+$/g, ''); // trim
 
-    str = str.toLowerCase(); // remove accents, swap ñ for n, etc
+    str = str.toLowerCase();
+    str = str.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|-variable/g, ''); // remove accents, swap ñ for n, etc
 
     var from = 'àáäâèéëêìíïîòóöôùúüûñç·/_,:;';
     var to = 'aaaaeeeeiiiioooouuuunc------';
@@ -677,6 +738,16 @@ var ui = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _string__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./string */ "./src/util/string.js");
+
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 
 var util = {
@@ -703,6 +774,39 @@ var util = {
     }
 
     return textStyleId;
+  },
+  stripMedias: function stripMedias(textStyle) {
+    textStyle.name = textStyleName;
+    textStyleName = textStyleName.replace(/-desktop|-mobile|-tablet/g, '');
+    return textStyleName;
+  },
+  createFinalStylesList: function createFinalStylesList(textStyles) {
+    //clean random names
+    var cleanedNames = [];
+
+    var stripMedias = function stripMedias(textStyle) {
+      textStyle.name = textStyleName;
+      textStyleName = textStyleName.replace(/-desktop|-mobile|-tablet/g, '');
+      return textStyleName;
+    }; // deduper for cleaned names only
+
+
+    var deDupe = function deDupe(cleanedNames) {
+      var unique = _toConsumableArray(new Set(cleanedNames));
+
+      return unique;
+    }; // get the name out of the text style and run through any cleaning here -- have written it all out so it's easier to add to later
+
+
+    textStyles.forEach(function (textStyle, i) {
+      var cleanedName = textStyle.name;
+      cleanedName = exportUtils.stripSketchWords(cleanedName);
+      cleanedName = stripMedias(cleanedName);
+      cleanedNames = cleanedNames + cleanedName;
+    });
+    cleanedNames = deDupe(cleanedNames);
+    log(cleanedNames);
+    return cleanedNames;
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = (util);

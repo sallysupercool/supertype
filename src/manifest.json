@@ -4,22 +4,19 @@
   "icon": "icon.png",
   "commands": [
     {
-      "name": "Pattern Lab",
-      "shortcut": "ctrl shift f",
-      "identifier": "patternlab-export",
-      "script": "./patternlab-export.js"
+      "name": "SASS mixins",
+      "identifier": "mixins-export",
+      "script": "./mixins-export.js"
     },
     {
       "name": "CSS Helpers",
-      "shortcut": "ctrl shift c",
       "identifier": "helpers-export",
       "script": "./helpers-export.js"
     },
     {
-      "name": "SASS mixins",
-      "shortcut": "ctrl shift s",
-      "identifier": "mixins-export",
-      "script": "./mixins-export.js"
+      "name": "Pattern Lab",
+      "identifier": "patternlab-export",
+      "script": "./patternlab-export.js"
     }
   ],
   "menu": {
@@ -28,9 +25,9 @@
       {
         "title": "Export",
         "items": [
-          "patternlab-export",
           "mixins-export",
-          "helpers-export"
+          "helpers-export",
+          "patternlab-export"
         ]
       }
     ]

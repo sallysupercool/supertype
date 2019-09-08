@@ -6,7 +6,7 @@ export default function(context) {
 
     openExportDialog(context, {
         title: 'Create Patternlab samples',
-        informativeText: 'Create a type page for Patternlab',
+        informativeText: 'Create a type page for Patternlab. Place this hbs file in /web/pattern-lab/source/_patterns/03-Base/',
         confirmBtnText: 'Export HBS'
     }, (textStyles, data) => {
 

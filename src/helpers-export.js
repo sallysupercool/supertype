@@ -7,7 +7,7 @@ export default function(context) {
 
   openExportDialog(context, {
     title: 'CSS classes export',
-    informativeText: 'Export helper classes scss partial.'
+    informativeText: 'Export all helper classes for this type system. Place this scss file in /web/pattern-lab/source/styles/07-Helper/'
     }, (textStyles, data) => {
 
     

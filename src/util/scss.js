@@ -4,7 +4,7 @@ import list from './list';
 import number from './number';
 import string from './string';
 
-const exportUtils = {
+const scss = {
 
     //start creating things!
     // this creates the initial css mixins from the Sketch properties
@@ -19,7 +19,7 @@ const exportUtils = {
             cssProps['font-family'] = textStyle.fontFamily;
             cssProps['font-weight'] = 400;
             cssProps['text-transform'] = 'none';
-            cssProps['margin-bottom'] = '$b';
+            // cssProps['margin-bottom'] = '$b';
 
             let fontParts = textStyle.fontFamily.split('-');
 
@@ -51,9 +51,9 @@ const exportUtils = {
                 cssProps['line-height'] = number.parseFloatMaxDecimal(textStyle.lineHeight / textStyle.fontSize, opts.maxDecimalPlaces);
             }
             // huh, maybe we should grab margin bottoms?
-            if (textStyle.marginBottom) {
-                cssProps['margin-bottom'] = number.parseFloatMaxDecimal(1 * textStyle.marginBottom, 0) + opts.cssUnit;
-            }
+            // if (textStyle.marginBottom) {
+            //     cssProps['margin-bottom'] = number.parseFloatMaxDecimal(1 * textStyle.marginBottom, 0) + opts.cssUnit;
+            // }
             // log('props ' + cssProps);
 
             return cssProps;
@@ -97,4 +97,4 @@ const exportUtils = {
     }
 };
 
-export default exportUtils;
+export default scss;
