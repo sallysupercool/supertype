@@ -4,23 +4,17 @@ import string from './string';
 const list = {
   // make a list of final text styles to drive creation of classes and mega mixins
   createFinalStylesList(textStyles) {
-    //clean random names
-    let cleanedNames = []
+    //make array, strip out the media names, and dedupe (there will be 3 of each)
+    let namesArray = textStyles.map(textStyles => textStyles.name);
+  
+    //strip out the media sizes -- update this as necessary
+    let cleanedNames = namesArray.map(function(str){ return str.replace(/-mobile|-tablet|-desktop/g,"") });
+    
+    let deDupedNames = [...new Set(cleanedNames)];
+    deDupedNames.sort();
 
-    //strip out the media sizes
-    textStyles.forEach((textStyle, i) => {
-      cleanedNames += string.stripMedias(textStyle.name);
-    });
 
-    // remove duplicates (there will be at least three of each name)
-    let deDupe = (cleanedNames) => {
-    let unique = [...new Set(cleanedNames)];
-    return unique;
-    }
-
-    cleanedNames = deDupe(cleanedNames);    
-
-    return cleanedNames;    
+    return deDupedNames;    
   },
   sortTextStyles(textStyles) {
 

@@ -1,6 +1,5 @@
 import ui from './util/ui';
-import stringUtils from './util/string';
-import exportUtils from './util/export';
+import list from './util/list';
 
 import openExportDialog from './export/open-export-dialog';
 
@@ -11,14 +10,15 @@ export default function(context) {
     informativeText: 'Export helper classes scss partial.'
     }, (textStyles, data) => {
 
-    let css = '';
+    
     let finalStylesList = list.createFinalStylesList(textStyles);
 
-    finalStylesList.forEach(textStyle => {
-      css += `.h-${textStyle} { @include ${textStyle} }`
-    });
-
+    let css = '';
+    
+    finalStylesList.forEach(style => {
+      css += `.h-${style} { @include ${style} }\n`
+    })
 
     ui.createSavePanel('_supertype-helpers.css', css);
   });
-};
+}

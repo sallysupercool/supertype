@@ -12,9 +12,7 @@ export default function(context, opts, cb) {
 
     // Get the text styles from the Sketch document
     let textStyles = sketch.getTextStyles(context);
-    textStyles = list.sortTextStyles(textStyles);
-    log(textStyles);
-   
+    textStyles = list.sortTextStyles(textStyles);   
 
     cb(textStyles, data);
   });

@@ -6,34 +6,27 @@ import openExportDialog from './export/open-export-dialog';
 
 export default function(context) {
 
-  openExportDialog(context, data {
-    title: 'SASS mixins export',
-    informativeText: 'Export each text style as a SASS mixin'
-  }, (textStyles, data) => {
+    openExportDialog(context, {
+        title: 'SASS mixins export',
+        informativeText: 'Export each text style as a SASS mixin'
+    }, (textStyles, data) => {
 
-    textStyles = sketch.getTextStyles(textStyles, data);
-    let stylesheet = '';
+        let stylesheet = '//export all text styles as mixins \n';
 
-    // stuff these in the stylesheet
-    textStyles.forEach(textStyle => {
-      textStyle = exportUtils.createCssProps(textStyle);
-      
+        // stuff these in the stylesheet
+        textStyles.forEach(textStyle => {
+           stylesheet += 
+          `@mixin ${textStyle.name} {` + exportUtils.createMixin(textStyle) + `}\n`
+        });
 
-        stylesheet += '@mixin ' + textStyle.name + "\n";
-        stylesheet += '{'+"\n";
-        stylesheet += exportUtils.createStyleBlock(textStyle);
-        stylesheet += '}'+"\n";
-  
+        stylesheet += '// now create combination mixins with media queries \n';
+
+        let finalStylesList = list.createFinalStylesList(textStyles);
+
+        finalStylesList.forEach(textStyle => {
+            stylesheet += exportUtils.createMegaMixin(textStyle);
+        });
+
+        ui.createSavePanel('_supertype-mixins.scss', stylesheet);
     });
-
-    stylesheet += '// now create combination mixins with media queries \n';
-
-    let finalStylesList = list.createFinalStylesList(textStyles);
-
-    finalStylesList.forEach(textStyle => {
-       stylesheet += exportUtils.createMegaMixin(textStyle);
-    });
-
-    ui.createSavePanel('_supertype-mixins.scss', stylesheet);
-  });
 };

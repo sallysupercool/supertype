@@ -33,7 +33,7 @@ const sketch = {
 
       if (textStyle.paragraph) {
         textStyle.lineHeight = textStyle.paragraph.maximumLineHeight();
-        textStyle.marginBottom = textStyle.paragraph.paragraphSpacing;
+        textStyle.marginBottom = textStyle.paragraph.paragraphSpacing();
       }
 
       // textStyle.letterSpacing = rawTextStyle.attributes.NSKern || 0;

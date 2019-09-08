@@ -1,6 +1,5 @@
 import ui from './util/ui';
 import list from './util/list';
-import exportUtils from './util/export';
 import openExportDialog from "./export/open-export-dialog";
 
 export default function(context) {
@@ -14,34 +13,25 @@ export default function(context) {
         let finalStylesList = list.createFinalStylesList(textStyles);
         let i = 0;
 
-        let hbs = `
-      <article class="o-grid o-container">
-      <h3 class="h-text---styleguide-styleguide-title">Automated Export, style only, not an html guide</h3>
-    `;
+        let hbs = `<article class="o-grid o-container">
+      <h3 class="h-text---styleguide-styleguide-title">Automated Export, style only, not an html guide</h3>`;
 
-        finalStylesList.forEach((textStyle) => {
-
-            hbs += `
-        <dt class="h-text---styleguide-styleguide-title">
+        finalStylesList.forEach(style => {
+            hbs += `<dt class="h-text---styleguide-styleguide-title">
             <span>${i+1}.</span>
             <span>
-              ${textStyle}
+              .h-${style} / @include ${style};
             </span>
           </dt>
           <dd>
-            <div class="h-${textStyle}" contenteditable="true">
+            <div class="h-${style}" contenteditable="true">
               The quick brown fox jumps over the lazy dog
             </div>
             
           </dd>
       `;
-
-        });
-        hbs += `
-    </dl>
-    </article>
-
-    `;
+        })
+        hbs += `</dl></article>`;
 
         // Ask the user to save the file
         ui.createSavePanel('supertype.hbs', hbs);
