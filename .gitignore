@@ -1,5 +1,6 @@
 # build artifacts
 plugin.sketchplugin
+supertype.sketchplugin
 
 # npm
 node_modules
