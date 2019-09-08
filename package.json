@@ -1,18 +1,20 @@
 {
-  "name": "typex",
+  "name": "supertype",
   "version": "1.1.0",
-  "description": "Text styles to CSS, SASS mixins, HTML, JSON, ...",
+  "description": "Exports typestyles as SASS, Helpers, and a type sample page for Patternlab",
+  "author": "Supercool (based on Typex)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reinvanoyen/typex"
+    "url": "git+https://github.com/sallysupercool/supertype"
   },
   "engines": {
     "sketch": ">=3.0"
   },
   "skpm": {
-    "name": "typex",
+    "name": "Super Type",
+    "author": "Supercool",
     "manifest": "src/manifest.json",
-    "main": "typex.sketchplugin",
+    "main": "supertype.sketchplugin",
     "assets": [
       "assets/**/*"
     ]
