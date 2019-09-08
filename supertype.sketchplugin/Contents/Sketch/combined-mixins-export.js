@@ -86,10 +86,41 @@ var exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/sass-mixins-export.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/combined-mixins-export.js");
 /******/ })
 /************************************************************************/
 /******/ ({
+
+/***/ "./src/combined-mixins-export.js":
+/*!***************************************!*\
+  !*** ./src/combined-mixins-export.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util/ui */ "./src/util/ui.js");
+/* harmony import */ var _util_export__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util/export */ "./src/util/export.js");
+/* harmony import */ var _export_open_export_dialog__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./export/open-export-dialog */ "./src/export/open-export-dialog.js");
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (function (context) {
+  Object(_export_open_export_dialog__WEBPACK_IMPORTED_MODULE_2__["default"])(context, {
+    title: 'Create Combined Mixins',
+    informativeText: 'Group the initial mixins into super mixins with media queries',
+    confirmBtnText: 'Export SCSS'
+  }, function (textStyles, data) {
+    // Create mega mixins and save out
+    var output = _util_export__WEBPACK_IMPORTED_MODULE_1__["default"].createCombinedStyles(textStyles, data); // Ask the user to save the file
+
+    _util_ui__WEBPACK_IMPORTED_MODULE_0__["default"].createSavePanel('_combined-type.scss', output);
+  });
+});
+;
+
+/***/ }),
 
 /***/ "./src/export/export-components.js":
 /*!*****************************************!*\
@@ -104,33 +135,31 @@ __webpack_require__.r(__webpack_exports__);
   type: 'multicheckbox',
   id: 'excludeProps',
   label: 'Exclude properties',
-  values: ['Color', 'Letter spacing', 'Text transform']
-}, // {
-//   type: 'select', //removed as we do this in PostCSS
-//   id: 'cssUnit',
-//   options: [
-//     'px',
-//     'em',
-//     'rem',
-//     '%',
-//     'vh',
-//     'vw',
-//     'No unit'
-//   ],
-//   label: 'CSS unit'
-// },
-// {
-//   type: 'text', //removed as this is not rel for us
-//   id: 'scalingFactor',
-//   value: 1,
-//   label: 'Size scaling factor'
-// },
-{
+  values: ['Color', 'Letter spacing', 'Text transform' // swap for our removes
+  ]
+}, {
   type: 'text',
   id: 'maxDecimalPlaces',
   value: 6,
   // increased to 6 for accuracy
   label: 'Maximal decimal places'
+}, {
+  type: 'checkbox',
+  id: 'export New Site Pack',
+  label: 'Export all',
+  values: 0
+}, {
+  type: 'select',
+  //TODO: remove as we do this in PostCSS
+  id: 'cssUnit',
+  options: ['px', 'em', 'rem', '%', 'vh', 'vw', 'No unit'],
+  label: 'CSS unit'
+}, {
+  type: 'text',
+  //TODO remove as this is not rel for us
+  id: 'scalingFactor',
+  value: 1,
+  label: 'Size scaling factor'
 }, {
   type: 'text',
   id: 'namingPrefix',
@@ -176,68 +205,34 @@ __webpack_require__.r(__webpack_exports__);
       excludeProps.push('color');
     }
 
-    if (data['excludeProps']['Line height']) {
-      excludeProps.push('lineHeight');
+    if (data['excludeProps']['Letter Spacing']) {
+      excludeProps.push('letterSpacing');
+    }
+
+    if (data['excludeProps']['Text Transform']) {
+      excludeProps.push('textTransform');
+    } // Next store the words we should strip out from the text style names !not yet hooked up
+
+
+    var excludeWords = [];
+
+    if (data.excludeWords | length) {
+      var wordString = data.excludeWords;
+      wordArray = excludeWords.split(",");
+      excludeWords.push(wordArray);
     } // Get the text styles from the Sketch document
 
 
     var textStyles = _util_sketch__WEBPACK_IMPORTED_MODULE_2__["default"].getTextStyles(context);
     textStyles = _util_export__WEBPACK_IMPORTED_MODULE_1__["default"].sortTextStyles(textStyles);
     textStyles = _util_export__WEBPACK_IMPORTED_MODULE_1__["default"].excludeTextStyleProperties(textStyles, excludeProps);
+    textStyles = _util_export__WEBPACK_IMPORTED_MODULE_1__["default"].stripSketchWords(textStyles, excludeWords);
 
     if (data['merge']) {
       textStyles = _util_export__WEBPACK_IMPORTED_MODULE_1__["default"].removeDoubleTextStyles(textStyles);
     }
 
     cb(textStyles, data);
-  });
-});
-;
-
-/***/ }),
-
-/***/ "./src/sass-mixins-export.js":
-/*!***********************************!*\
-  !*** ./src/sass-mixins-export.js ***!
-  \***********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _util_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util/ui */ "./src/util/ui.js");
-/* harmony import */ var _util_string__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util/string */ "./src/util/string.js");
-/* harmony import */ var _util_export__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./util/export */ "./src/util/export.js");
-/* harmony import */ var _export_open_export_dialog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./export/open-export-dialog */ "./src/export/open-export-dialog.js");
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = (function (context) {
-  Object(_export_open_export_dialog__WEBPACK_IMPORTED_MODULE_3__["default"])(context, {
-    title: 'SASS mixins export',
-    informativeText: 'Export each text style as a SASS mixin'
-  }, function (textStyles, data) {
-    var sass = {};
-    textStyles.forEach(function (textStyle) {
-      sass[_util_string__WEBPACK_IMPORTED_MODULE_1__["default"].slugify(textStyle.name)] = _util_export__WEBPACK_IMPORTED_MODULE_2__["default"].createCssProps(textStyle, data);
-    });
-    var output = '';
-    var i = 0;
-
-    for (var identifier in sass) {
-      if (sass.hasOwnProperty(identifier)) {
-        var mixinName = data.namingPrefix + '-' + (data.namingConvention === 'Numeric' ? i + 1 : identifier);
-        mixinName = _util_export__WEBPACK_IMPORTED_MODULE_2__["default"].stripSketchWords(mixinName);
-        output += (i !== 0 ? "\n" : '') + '@mixin ' + mixinName + "\n";
-        output += '{' + "\n";
-        output += _util_export__WEBPACK_IMPORTED_MODULE_2__["default"].createStyleBlock(sass[identifier]);
-        output += '}' + "\n";
-        i++;
-      }
-    }
-
-    _util_ui__WEBPACK_IMPORTED_MODULE_0__["default"].createSavePanel('_supertype-mixins.scss', output);
   });
 });
 ;
@@ -302,19 +297,6 @@ var exportUtils = {
     });
     return textStyles;
   },
-  removeDoubleTextStyles: function removeDoubleTextStyles(textStyles) {
-    var uniqueTextStyles = {};
-    var filtered = [];
-    textStyles.forEach(function (textStyle, i) {
-      var id = _util__WEBPACK_IMPORTED_MODULE_0__["default"].createTextStyleId(textStyle);
-
-      if (!uniqueTextStyles[id]) {
-        uniqueTextStyles[id] = true;
-        filtered.push(textStyle);
-      }
-    });
-    return filtered;
-  },
   //start creating things!
   // make a list of final text styles to drive creation of classes and mega mixins
   createFinalStylesList: function createFinalStylesList(textStyles) {
@@ -328,7 +310,6 @@ var exportUtils = {
       cleanedNames = cleanedNames + cleanedName;
     });
     cleanedNames = deDupe(cleanedNames);
-    log(cleanedNames);
     return cleanedNames;
   },
   createCssProps: function createCssProps(textStyle) {
@@ -392,48 +373,44 @@ var exportUtils = {
 
     return output;
   },
+  //combine all the initial mixins into something useful with media queries. As indicated please only provide final and deduped text style names as input 
+  createMegaMixin: function createMegaMixin(finalTextStyleName) {
+    // swap in the screen size as second to last name
+    var i = finalTextStyleName.lastIndexOf('-');
+
+    function insert(str, index, value) {
+      return str.substr(0, index) + value + str.substr(index);
+    }
+
+    var phone = insert(finalTextStyleName, i, '-mobile');
+    var tablet = insert(finalTextStyleName, i, '-tablet');
+    var desktop = insert(finalTextStyleName, i, '-desktop');
+    return "@mixin ".concat(finalTextStyleName, " { \n    @include media($tablet) { @include ").concat(tablet, " }\n    @include media($tablet--gt) { @include ").concat(desktop, " }\n    @include media($phone) { @include ").concat(phone, " }   \n    } ");
+  },
   createClasses: function createClasses(finalTextStyleName) {
     return ".h-".concat(finalTextStyleName, " { @include ").concat(finalTextStyleName, " }");
   },
   createCombinedStyles: function createCombinedStyles(textStyles) {
-    var output = " "; //combine all the initial mixins into something useful with media queries. As indicated please only provide final and deduped text style names as input 
+    var output = " "; //get cleaned list of styles
 
-    function createMegaMixin(finalTextStyleName) {
-      // swap in the screen size as second to last name
-      var i = finalTextStyleName.lastIndexOf('-');
-
-      function insert(str, index, value) {
-        return str.substr(0, index) + value + str.substr(index);
-      }
-
-      var phone = insert(finalTextStyleName, i, '-mobile');
-      var tablet = insert(finalTextStyleName, i, '-tablet');
-      var desktop = insert(finalTextStyleName, i, '-desktop');
-      return "@mixin ".concat(finalTextStyleName, " { \n    @include media($tablet) { @include ").concat(tablet, " }\n    @include media($tablet--gt) { @include ").concat(desktop, " }\n    @include media($phone) { @include ").concat(phone, " }   \n    } ");
-    }
-
-    ; //get cleaned list of styles
-
-    finalList = _util__WEBPACK_IMPORTED_MODULE_0__["default"].createFinalStylesList(textStyles);
+    finalList = createFinalStylesList(textStyles);
     finalList.forEach(function (finalTextStyleName) {
       output += "".concat(createMegaMixin(finalTextStyleName));
     });
     return output;
   },
   createCombinedClassNames: function createCombinedClassNames(textStyles) {
-    var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var output = " "; //get cleaned list of styles
 
-    finalList = _util__WEBPACK_IMPORTED_MODULE_0__["default"].createFinalStylesList(textStyles);
+    finalList = createFinalStylesList(textStyles);
     finalList.forEach(function (finalTextStyleName) {
       output += "".concat(createMegaMixin(finalTextStyleName));
     });
     return output;
   },
-  createPatternlab: function createPatternlab(textStyle) {
-    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  createPatternlab: function createPatternlab(textStyles) {
     var output = "\n      <article class=\"o-grid o-container\">\n      <h3 class=\"h-text---styleguide-styleguide-title\">Automated Export, style only</h3>\n    ";
-    textStyles = createFinalStylesList(textStyle);
+    textStyles = createFinalStylesList(textStyles);
     textStyles.forEach(function (textStyle) {
       output += "\n        <dt class=\"h-text---styleguide-styleguide-title\">\n            <span>".concat(i + 1, ".</span>\n            <span>\n              ").concat(textStyle, "\n            </span>\n          </dt>\n          <dd>\n            <div class=\"h-").concat(textStyle, "\" contenteditable=\"true\">\n              The quick brown fox jumps over the lazy dog\n            </div>\n            \n          </dd>\n      ");
     });
@@ -523,42 +500,6 @@ var sketch = {
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = (sketch);
-
-/***/ }),
-
-/***/ "./src/util/string.js":
-/*!****************************!*\
-  !*** ./src/util/string.js ***!
-  \****************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-
-
-var string = {
-  slugify: function slugify(str) {
-    str = str.replace(/^\s+|\s+$/g, ''); // trim
-
-    str = str.toLowerCase();
-    str = str.replace(/-left|-right|-centre|-light-grey|-black|-white|-series|-event|-brand|-variable/g, ''); // remove accents, swap ñ for n, etc
-
-    var from = 'àáäâèéëêìíïîòóöôùúüûñç·/_,:;';
-    var to = 'aaaaeeeeiiiioooouuuunc------';
-
-    for (var i = 0, l = from.length; i < l; i++) {
-      str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
-    }
-
-    str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
-    .replace(/\s+/g, '-') // collapse whitespace and replace by -
-    .replace(/-+/g, '-') // collapse dashes
-    ;
-    return str;
-  }
-};
-/* harmony default export */ __webpack_exports__["default"] = (string);
 
 /***/ }),
 
@@ -739,16 +680,6 @@ var ui = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _string__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./string */ "./src/util/string.js");
-
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 
 var util = {
@@ -775,39 +706,6 @@ var util = {
     }
 
     return textStyleId;
-  },
-  stripMedias: function stripMedias(textStyle) {
-    textStyle.name = textStyleName;
-    textStyleName = textStyleName.replace(/-desktop|-mobile|-tablet/g, '');
-    return textStyleName;
-  },
-  createFinalStylesList: function createFinalStylesList(textStyles) {
-    //clean random names
-    var cleanedNames = [];
-
-    var stripMedias = function stripMedias(textStyle) {
-      textStyle.name = textStyleName;
-      textStyleName = textStyleName.replace(/-desktop|-mobile|-tablet/g, '');
-      return textStyleName;
-    }; // deduper for cleaned names only
-
-
-    var deDupe = function deDupe(cleanedNames) {
-      var unique = _toConsumableArray(new Set(cleanedNames));
-
-      return unique;
-    }; // get the name out of the text style and run through any cleaning here -- have written it all out so it's easier to add to later
-
-
-    textStyles.forEach(function (textStyle, i) {
-      var cleanedName = textStyle.name;
-      cleanedName = exportUtils.stripSketchWords(cleanedName);
-      cleanedName = stripMedias(cleanedName);
-      cleanedNames = cleanedNames + cleanedName;
-    });
-    cleanedNames = deDupe(cleanedNames);
-    log(cleanedNames);
-    return cleanedNames;
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = (util);
@@ -823,4 +721,4 @@ var util = {
 }
 that['onRun'] = __skpm_run.bind(this, 'default')
 
-//# sourceMappingURL=sass-mixins-export.js.map
+//# sourceMappingURL=combined-mixins-export.js.map

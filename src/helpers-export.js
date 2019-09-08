@@ -1,6 +1,5 @@
 import ui from './util/ui';
-import stringUtils from './util/string';
-import exportUtils from './util/export';
+import list from './util/list';
 
 import openExportDialog from './export/open-export-dialog';
 
@@ -8,19 +7,18 @@ export default function(context) {
 
   openExportDialog(context, {
     title: 'CSS classes export',
-    informativeText: 'Export helper classes scss partial.'
+    informativeText: 'Export all helper classes for this type system. Place this scss file in /web/pattern-lab/source/styles/07-Helper/'
     }, (textStyles, data) => {
 
-    let output = '';
-    textStyles = []
-    textStyles += [exportUtils.createFinalStylesList(textStyles)];
+    
+    let finalStylesList = list.createFinalStylesList(textStyles);
 
+    let css = '';
+    
+    finalStylesList.forEach(style => {
+      css += `.h-${style} { @include ${style} }\n`
+    })
 
-    textStyles.forEach(textStyle => {
-      output += `.h-${textStyle} { @include ${textStyle} }`
-    });
-
-
-    ui.createSavePanel('_supertype-helpers.css', output);
+    ui.createSavePanel('_supertype-helpers.css', css);
   });
-};
+}

@@ -1,40 +1,32 @@
 import ui from './util/ui';
-import stringUtils from './util/string';
-import exportUtils from './util/export';
-
+import list from './util/list';
+import sketch from './util/sketch';
+import scss from './util/scss';
 import openExportDialog from './export/open-export-dialog';
 
 export default function(context) {
 
-  openExportDialog(context, {
-    title: 'SASS mixins export',
-    informativeText: 'Export each text style as a SASS mixin'
-  }, (textStyles, data) => {
+    openExportDialog(context, {
+        title: 'SASS mixins export',
+        informativeText: 'Export all mixins and combined styles. Place this file in web/pattern-lab/source/styles/02-Mixins-and-Models/Mixins/'
+    }, (textStyles, data) => {
 
-    let sass = {};
+        let stylesheet = '//export all text styles as mixins \n';
 
-    textStyles.forEach(textStyle => {
-      sass[stringUtils.slugify(textStyle.name)] = exportUtils.createCssProps(textStyle, data);
+        // stuff these in the stylesheet
+        textStyles.forEach(textStyle => {
+           stylesheet += 
+          `@mixin ${textStyle.name} {` + scss.createMixin(textStyle) + `}\n`
+        });
+
+        stylesheet += '// now create combination mixins with media queries \n';
+
+        let finalStylesList = list.createFinalStylesList(textStyles);
+
+        finalStylesList.forEach(textStyle => {
+            stylesheet += scss.createMegaMixin(textStyle);
+        });
+
+        ui.createSavePanel('_supertype-mixins.scss', stylesheet);
     });
-
-    let output = '';
-    let i = 0;
-
-    for (let identifier in sass) {
-
-      if (sass.hasOwnProperty(identifier)) {
-
-        let mixinName = data.namingPrefix + '-' + (data.namingConvention === 'Numeric' ? i+1 : identifier);
-        mixinName = exportUtils.stripSketchWords(mixinName);
-
-        output += ( i !== 0 ? "\n" : '' ) + '@mixin ' + mixinName + "\n";
-        output += '{'+"\n";
-        output += exportUtils.createStyleBlock(sass[identifier]);
-        output += '}'+"\n";
-        i++;
-      }
-    }
-
-    ui.createSavePanel('_supertype-mixins.scss', output);
-  });
 };

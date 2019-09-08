@@ -1,26 +1,26 @@
-<p align="center">
-  <a href="https://github.com/reinvanoyen/typex">
-    <img width="100" height="100" src="https://raw.githubusercontent.com/reinvanoyen/typex/master/icon.png" />
-  </a>
-  <h3 align="center">Export your text styles to CSS, SASS mixins, JSON, HTML, ...</h3>
-  <h4 align="center">Highly configurable (Including rem, em units, etc)</h4>
-</p>
-<p align="center">
-  <a href="http://bit.ly/SketchRunnerWebsite">
-    <img width="160" height="41" src="http://bit.ly/RunnerBadgeBlue">
-  </a>
-  </p>
-  
-# Installation
-1. <a href="https://github.com/reinvanoyen/typex/archive/master.zip" title="Download typeX">Download the plugin</a>.
-2. Unzip the downloaded file.
-3. Double click on typex.sketchplugin
+# Supertype
 
-# Typex?
+This is a drastic fork of [Typex](https://github.com/reinvanoyen/typex/). Please retain his licence.
 
-Typex is a Sketch plugin which provides you with all the tools you need to export your text styles to the web platform, ready for your developer to put them to use. Instead of just giving you the typical simplistic copy-pastable CSS snippet for your text styles, you can now actually configure how to export them to CSS, SASS mixins and JSON.
+It has been reconfigured to our specifications and requirements, so I've taken off the GUI configuration Typex comes with. I've left the code in, just commented it out. The guts of the output code are now the same as the old node app I made before, Typesystem.
 
-<img width="730" src="https://raw.githubusercontent.com/reinvanoyen/typex/master/context-menu.png" />
-<img width="635" src="https://raw.githubusercontent.com/reinvanoyen/typex/master/sass-export.png" />
-<img width="635" src="https://raw.githubusercontent.com/reinvanoyen/typex/master/html-fontbook-export.png" />
-<img width="635" src="https://raw.githubusercontent.com/reinvanoyen/typex/master/json-export.png" />
+###To install:
+Double click the Sketch plugin.
+
+###To use
+Navigate to Plugins > Super Type > Export 
+
+You probably want to export all three assets. A good next step would be to make Export All a button on the dialog!
+
+###To develop
+
+* This is written in the [Sketch Plugin Manager](https://skpm.io/) so install that first.
+* Here's the [Sketch JS API](https://developer.sketch.com/plugins/javascript-api) for your reference.
+* cd into /src and ```npm i```  then ```npm run build```  to build the plugin.
+* If you're working up something best thing to do is use the ```npm run watch``` function and also open up the console in [Sketch Dev Tools](https://github.com/skpm/sketch-dev-tools) so you can see what you are doing. Use ```log()``` instead of ```console.log()``` to feed through to the Sketch console.
+
+####Next steps
+* provide interface to select which are $display-font-family and which are $base-font-family fonts, and automatically replace that in.
+* 
+
+
